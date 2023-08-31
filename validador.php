@@ -10,36 +10,40 @@
                                                                    (19)99272-0159
                                                                    (19)99751-7645
 
-    ROTINA DE VALIDAÇÃO DE ID DE GRUPO EM CADASTRO DE MERCADORIAS  */
+    ROTINA DE PEDIDOS - SEGUNDA PÁGINA  */
 
 // ############################################################################################################################ //
-//     ESTE ARQUIVO CARREGA O ID DO GRUPO SELECIONADO PARA MUDAR  AO CLICAR NO NOVO GRUPO    //
+//     ESTE ARQUIVO VEM PARA CARREGAR O ID DO CLIENTE SELECIONADO E SALVA-LO EM UMA TABELA PARA ABRIR O FORMULÁRIO DE PEDIDOS   //
 // ############################################################################################################################ //
 
      session_start();
      require 'Utilidades/conexao.php';
 
-     $codigo  = $_REQUEST['objCodigo']; // CODIGO DA MERCADORIA //
-     $grupo   = $_REQUEST['objGrupo']; // CODIGO DO GRUPO //
+     $codigo  = $_REQUEST['objCodigo']; // CODIGO DO CLIENTE //
      $usuario = $_SESSION['usuario'];  // VARIÁVEL DE SESSÃO, QUE VEM COM O NOME DO USUÁRIO LOGADO //
 
 
 
-     $sql = mysql_query("UPDATE mercadorias SET merGrupo = '$grupo' WHERE merCodigo = '$codigo'");
+     mysql_query("UPDATE container_pedido SET conCodigoCliente = '$codigo' WHERE conResponsavel = '$usuario'");
 
-     // ## VERIFICA SE HOUVE ERRO ## //
-     if(empty($sql))
-     { 
-         print 0;
-     }
-
-     else
+     // ###  PEGANDO O NÚMERO DO PEDIDO ### //
+     $sql = mysql_query("SELECT pedCodigo FROM pedidos");
+     while($obj = mysql_fetch_array($sql))
      {
-        print 1;
+         $pedido = $obj['pedCodigo'];
      }
-     
 
-     header('Location:http://www.difranconaweb.com.br/pinhelli/controller.php');
+     // ## INSERE NA TABELA TEMPORARIA O NUMERO DO CLIENTE SELECIONADO ## // 
+     mysql_query("UPDATE $usuario SET Cliente_fk = '$codigo', Hora = '$hora', Data = '$data'");
+
+    // ##  ATUALIZA A TABELA DE PONTEIRO COM O ID DO CLIENTE ## //
+    mysql_query("UPDATE ponteiro SET  ponPesquisa = '$pesquisar' WHERE ponResponsavel LIKE '$usuario'");
+    // ##  FINAL DE ATUALIZAÇÃO DE TABELA DE PONTEIRO ## //
+
+    //  ### INSERINDO O NUMERO DO CLIENTE   ### //
+    mysql_query("UPDATE pedidos SET pedCliente_fk = '$codigo' WHERE pedCodigo = '$pedido'");
+
+    header('Location:http://www.difranconaweb.com.br/pinhelli/controller.php');
 
 
      
